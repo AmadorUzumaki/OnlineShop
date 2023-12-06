@@ -1,0 +1,11 @@
+Model Information:
+* title:	Wakfu Fanart - Female IOP
+* source:	https://sketchfab.com/3d-models/wakfu-fanart-female-iop-854b37afca0c44c9a0302b879a95bfca
+* author:	Claudio Matsumoto (https://sketchfab.com/claudio.h.matsumoto)
+
+Model License:
+* license type:	CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
+* requirements:	Author must be credited. No commercial use.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Wakfu Fanart - Female IOP" (https://sketchfab.com/3d-models/wakfu-fanart-female-iop-854b37afca0c44c9a0302b879a95bfca) by Claudio Matsumoto (https://sketchfab.com/claudio.h.matsumoto) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
