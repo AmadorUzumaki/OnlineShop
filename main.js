@@ -21,6 +21,20 @@ const far = 1000
 const renderer = new THREE.WebGLRenderer()
 document.body.appendChild(renderer.domElement)
 
+//crear el cubemap
+
+const cubeTextureLoader = new THREE.CubeTextureLoader()
+const environmentMap = cubeTextureLoader.load([
+  'textures/environmentMaps/Studio/px.png',
+  'textures/environmentMaps/Studio/nx.png',
+  'textures/environmentMaps/Studio/py.png',
+  'textures/environmentMaps/Studio/ny.png',
+  'textures/environmentMaps/Studio/pz.png',
+  'textures/environmentMaps/Studio/nz.png'
+])
+
+scene.background = environmentMap;
+
 //fer que la pestanya es torni de la mida que és l'explorador actualment
 window.addEventListener('resize', () =>
 {
@@ -80,7 +94,7 @@ scene.add(plane)
 //crear la constant de la càmera la posicionam
 
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-camera.position.set(0, 10, 10);
+camera.position.set(0, 15, 30);
 camera.lookAt(0, 0, 0);
 
 //cub de prova
