@@ -1,11 +1,13 @@
 import './style.css'
 import * as THREE from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
+import gsap from 'gsap'
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 
 //crear escena
 
 const scene = new THREE.Scene()
+
 
 //crear ratio per la càmera
 const fov = 60
@@ -73,13 +75,20 @@ Yopuka.position.x = 25;
 scene.add(Yopuka);
 
 //punts HTML
-const points = [
-    {
-        position: new THREE.Vector3(1.55, 0.3, - 0.6),
-        element: document.querySelector('.point-0')
-    }
-]
-
+    const points = [
+        {
+            position: new THREE.Vector3(-25, 16, 0),
+            element: document.querySelector('.point-0')
+        },
+        {
+            position: new THREE.Vector3(0, 16, 0),
+            element: document.querySelector('.point-1')
+        },
+        {
+            position: new THREE.Vector3(25, 16, 0),
+            element: document.querySelector('.point-2')
+        }
+    ]
 
 //crear la constant del ratolí que utilitzarem per guardar la posició d'aquest
 const mouse = new THREE.Vector2()
@@ -118,7 +127,7 @@ scene.add(plane)
 //crear la constant de la càmera la posicionam
 
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-camera.position.set(0, 15, 30);
+camera.position.set(0, 20, 30);
 camera.lookAt(0, 0, 0);
 
 //cub de prova
@@ -140,7 +149,7 @@ spotLightLink.target = Link;
 const spotLightHelperLink = new THREE.SpotLightHelper(spotLightLink);
 spotLightLink.visible = false;
 scene.add(spotLightLink);
-scene.add(spotLightHelperLink);
+//scene.add(spotLightHelperLink);
 
 //spotlight de Tharja
 
@@ -151,7 +160,7 @@ spotLightTharja.target = Tharja;
 const spotLightHelperTharja = new THREE.SpotLightHelper(spotLightTharja);
 spotLightTharja.visible = false;
 scene.add(spotLightTharja);
-scene.add(spotLightHelperTharja);
+//scene.add(spotLightHelperTharja);
 
 //spotlight de Yopuka
 
@@ -163,10 +172,10 @@ spotLightYopuka.target = Yopuka;
 const spotLightHelperYopuka = new THREE.SpotLightHelper(spotLightYopuka);
 spotLightYopuka.visible = false;
 scene.add(spotLightYopuka);
-scene.add(spotLightHelperYopuka);
+//scene.add(spotLightHelperYopuka);
 
 //llum ambiental per poder veure fins que tot funcioni
-const ambientLight = new THREE.AmbientLight(0xfffff, 1)
+const ambientLight = new THREE.AmbientLight(0xFFFFFF, 1)
 
 scene.add(ambientLight);
 
@@ -180,6 +189,50 @@ let Time = Date.now()
 
 let model = null
 
+//animacions
+
+//tornar a posició inicial
+
+// gsap.to(camera.position, {
+//     duration: 3,
+//     x: 0,
+//        y: 20,
+//     repeat: 0,
+//     ease: "power1.in"
+// })
+
+//veure a Link
+
+// gsap.to(camera.position, {
+//     duration: 3,
+//     x: -25,
+//        y: 10,
+//     repeat: 0,
+//     ease: "power1.in"
+// })
+
+//veure a Tharja
+
+// gsap.to(camera.position, {
+//     duration: 3,
+//     x: 0,
+//     y: 10,
+//     repeat: 0,
+//     ease: "power1.in"
+// })
+
+//veure a Yopuka
+
+// gsap.to(camera.position, {
+//     duration: 3,
+//     x: 25,
+//     y: 10,
+//     repeat: 0,
+//     ease: "power1.in"
+// })
+
+
+
 //funció de loop d'animació que servirà per fer que els objectes necessaris tenguin animació
 AnimationLoop()
 
@@ -187,11 +240,24 @@ function AnimationLoop() {
     let ThisTime = Date.now()
     let deltaTime = ThisTime - Time
     Time = ThisTime
+    //veure a Link
+    // camera.lookAt(-25, 10, 0);
+    // spotLightLink.visible = true;
+    //Link.rotateY(0.001 * deltaTime);
+    //veure a Tharja
+    // camera.lookAt(0, 10, 0);
+    // spotLightTharja.visible = true;
+    //Tharja.rotateY(0.001 * deltaTime);
+    //veure a Yopuka
+    // camera.lookAt(25, 10, 0);
+    // spotLightYopuka.visible = true;
+    // Yopuka.rotateY(0.001 * deltaTime);
     for(const point of points)   {
         const screenPosition = point.position.clone()
         screenPosition.project(camera)
-        console.log(screenPosition.x)
-
+        const translateX = screenPosition.x * sizes.width * 0.5
+        const translateY = - screenPosition.y * sizes.height * 0.5
+        point.element.style.transform = `translateX(${translateX}px) translateY(${translateY}px)`
     }
     renderer.render(scene, camera)
     requestAnimationFrame(AnimationLoop)
