@@ -19,6 +19,12 @@ const aspect = sizes.width / sizes.height
 const near = 0.1
 const far = 1000
 
+//crear la constant de la càmera la posicionam
+
+const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+camera.position.set(0, 20, 30);
+camera.lookAt(0, 0, 0);
+
 //crear el renderer
 const renderer = new THREE.WebGLRenderer()
 document.body.appendChild(renderer.domElement)
@@ -49,6 +55,19 @@ window.addEventListener('resize', () => {
 
     renderer.setSize(sizes.width, sizes.height)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+})
+//fer que quan es cliqui l'etiqueta s'acosti a Link
+
+document.querySelector(".point-0").addEventListener("click", function(){
+    LinkFocus();
+})
+//fer que quan es cliqui l'etiqueta s'acosti a Tharja
+document.querySelector(".point-1").addEventListener("click", function(){
+    TharjaFocus();
+})
+
+document.querySelector(".return").addEventListener("click", function(){
+    ReturnToStart();
 })
 
 //crear el carregador de textures
@@ -123,12 +142,6 @@ const plane = new THREE.Mesh(planeGeo, planeMat)
 plane.rotation.x = Math.PI * -0.5
 plane.receiveShadow = true
 scene.add(plane)
-
-//crear la constant de la càmera la posicionam
-
-const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-camera.position.set(0, 20, 30);
-camera.lookAt(0, 0, 0);
 
 //cub de prova
 const cubeMat = new THREE.MeshStandardMaterial({ color: 0xFF00FF });
@@ -230,7 +243,13 @@ let model = null
 //     repeat: 0,
 //     ease: "power1.in"
 // })
+// gsap.to(Link.rotation, {
+//     duration: 500,
+//     y: 360,
+//     repeat: -1
+// })
 
+//spotLightLink.visible = true;
 
 
 //funció de loop d'animació que servirà per fer que els objectes necessaris tenguin animació
@@ -241,9 +260,9 @@ function AnimationLoop() {
     let deltaTime = ThisTime - Time
     Time = ThisTime
     //veure a Link
-    // camera.lookAt(-25, 10, 0);
+    //camera.lookAt(-25, 10, 0);
     // spotLightLink.visible = true;
-    //Link.rotateY(0.001 * deltaTime);
+    // Link.rotateY(0.001 * deltaTime);
     //veure a Tharja
     // camera.lookAt(0, 10, 0);
     // spotLightTharja.visible = true;
@@ -262,6 +281,79 @@ function AnimationLoop() {
     renderer.render(scene, camera)
     requestAnimationFrame(AnimationLoop)
 }
+//funció que s'encarrega de quan fas click
+
+function LinkFocus(){
+    gsap.to(camera.position, {
+            duration: 3,
+            x: -25,
+            y: 10,
+            repeat: 0,
+            ease: "power1.in",
+            onUpdate: function() {
+                camera.lookAt( -25, 10, 0 );
+            },
+            onComplete: function(){
+                gsap.set(".return", {opacity: 100});
+            }
+    })
+    spotLightLink.visible = true;
+    gsap.to(Link.rotation, {
+        duration: 500,
+        y: 360,
+        repeat: -1
+    })
+}
+
+function TharjaFocus(){
+    gsap.to(camera.position, {
+        duration: 3,
+        x: 0,
+        y: 10,
+        repeat: 0,
+        ease: "power1.in",
+        onUpdate: function() {
+            camera.lookAt( 0, 10, 0 );
+        },
+        onComplete: function(){
+            gsap.set(".return", {opacity: 100});
+        }
+    })
+    spotLightTharja.visible = true;
+    gsap.to(Tharja.rotation, {
+        duration: 500,
+        y: 360,
+        repeat: -1
+    })
+}
+
+function ReturnToStart(){
+    if(spotLightLink.visible)
+        spotLightLink.visible = false
+    if(spotLightTharja.visible)
+        spotLightTharja = false
+    if(spotLightYopuka.visible)
+        spotLightYopuka = false
+    if(gsap.isTweening(Link.rotation))
+        gsap.killTweensOf(Link.rotation);
+    if(gsap.isTweening(Tharja.rotation))
+        gsap.killTweensOf(Tharja.rotation);
+    gsap.to(camera.position, {
+        duration: 3,
+        x: 0,
+        y: 20,
+        z: 30,
+        repeat: 0,
+        ease: "power1.in",
+        onUpdate: function() {
+            camera.lookAt( 0, 0, 0 );
+        },
+        onComplete: function(){
+            gsap.set(".return", {opacity: 0});
+        }
+})
+}
+
 //crear una funció per poder importar models
 function ImportModel(route, object3D, scalated) {
 
@@ -285,5 +377,4 @@ function ImportModel(route, object3D, scalated) {
                 //console.error(error);
             }
         )
-
 }

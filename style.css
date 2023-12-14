@@ -8,6 +8,13 @@ body {
   min-height: 100vh;
 }
 
+.return{
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    opacity: 0%;
+}
+
 .point
 {
     position: absolute;
