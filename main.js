@@ -62,8 +62,14 @@ document.querySelector(".point-0").addEventListener("click", function(){
     LinkFocus();
 })
 //fer que quan es cliqui l'etiqueta s'acosti a Tharja
+
 document.querySelector(".point-1").addEventListener("click", function(){
     TharjaFocus();
+})
+//fer que quan es cliqui l'etiqueta s'acosti a Yopuka
+
+document.querySelector(".point-2").addEventListener("click", function(){
+    YopukaFocus();
 })
 
 document.querySelector(".return").addEventListener("click", function(){
@@ -96,36 +102,18 @@ scene.add(Yopuka);
 //punts HTML
     const points = [
         {
-            position: new THREE.Vector3(-25, 16, 0),
+            position: new THREE.Vector3(-25, 0, 0),
             element: document.querySelector('.point-0')
         },
         {
-            position: new THREE.Vector3(0, 16, 0),
+            position: new THREE.Vector3(0, 0, 0),
             element: document.querySelector('.point-1')
         },
         {
-            position: new THREE.Vector3(25, 16, 0),
+            position: new THREE.Vector3(25, 0, 0),
             element: document.querySelector('.point-2')
         }
     ]
-
-//crear la constant del ratolí que utilitzarem per guardar la posició d'aquest
-const mouse = new THREE.Vector2()
-mouse.x = -1
-mouse.y = -1
-
-//guardar la posició del ratolí
-window.addEventListener('mousemove', (event) => {
-    mouse.x = event.clientX / sizes.width * 2 - 1
-    mouse.y = - (event.clientY / sizes.height) * 2 + 1
-    //console.log(mouse)
-})
-
-window.addEventListener('click', () => {
-    console.log('click')
-    })
-
-//const clock = new THREE.Clock()
 
 //crear una superfície per posar els objectes, amb una geometria, el material a partir de les imatges, y la rotació adequada per que sigui en terra
 const planeGeo = new THREE.PlaneGeometry(100, 100)
@@ -151,7 +139,7 @@ cube.position.y = 0.5;
 //scene.add(cube);
 
 //constant per tal de poder moure la càmera
-const controls = new OrbitControls(camera, renderer.domElement)
+//const controls = new OrbitControls(camera, renderer.domElement)
 
 //spotlight de Link
 const spotLightLink = new THREE.SpotLight(0xFFFFFF, 10000, 0, Math.PI / 8)
@@ -282,6 +270,10 @@ function AnimationLoop() {
     requestAnimationFrame(AnimationLoop)
 }
 //funció que s'encarrega de quan fas click
+const startOrientation = camera.quaternion.clone();
+const LinkOrientation = Link.quaternion.clone().normalize();
+const TharjaOrientation = Tharja.quaternion.clone().normalize();
+const YopukaOrientation = Yopuka.quaternion.clone().normalize();
 
 function LinkFocus(){
     gsap.to(camera.position, {
@@ -291,10 +283,11 @@ function LinkFocus(){
             repeat: 0,
             ease: "power1.in",
             onUpdate: function() {
-                camera.lookAt( -25, 10, 0 );
+                camera.quaternion.copy(startOrientation).slerp(LinkOrientation, this.progress());
             },
             onComplete: function(){
                 gsap.set(".return", {opacity: 100});
+                gsap.set("#text-0", {opacity: 100});
             }
     })
     spotLightLink.visible = true;
@@ -313,10 +306,11 @@ function TharjaFocus(){
         repeat: 0,
         ease: "power1.in",
         onUpdate: function() {
-            camera.lookAt( 0, 10, 0 );
+            camera.quaternion.copy(startOrientation).slerp(TharjaOrientation, this.progress());
         },
         onComplete: function(){
             gsap.set(".return", {opacity: 100});
+            gsap.set("#text-1", {opacity: 100});
         }
     })
     spotLightTharja.visible = true;
@@ -327,17 +321,48 @@ function TharjaFocus(){
     })
 }
 
+function YopukaFocus(){
+    gsap.to(camera.position, {
+        duration: 3,
+        x: 25,
+        y: 10,
+        repeat: 0,
+        ease: "power1.in",
+        onUpdate: function() {
+            camera.quaternion.copy(startOrientation).slerp(YopukaOrientation, this.progress());
+        },
+        onComplete: function(){
+            gsap.set(".return", {opacity: 100});
+            gsap.set("#text-2", {opacity: 100});
+        }
+    })
+    spotLightYopuka.visible = true;
+    gsap.to(Yopuka.rotation, {
+        duration: 500,
+        y: 360,
+        repeat: -1
+    })
+}
+
 function ReturnToStart(){
-    if(spotLightLink.visible)
+    if(spotLightLink.visible){
         spotLightLink.visible = false
-    if(spotLightTharja.visible)
-        spotLightTharja = false
-    if(spotLightYopuka.visible)
-        spotLightYopuka = false
-    if(gsap.isTweening(Link.rotation))
         gsap.killTweensOf(Link.rotation);
-    if(gsap.isTweening(Tharja.rotation))
+        Link.rotation.set(0, 0, 0);
+        gsap.set("#text-0", {opacity: 0});
+    }
+    if(spotLightTharja.visible){
+        spotLightTharja.visible = false
         gsap.killTweensOf(Tharja.rotation);
+        Tharja.rotation.set(0, 0, 0);
+        gsap.set("#text-1", {opacity: 0});
+    }
+    if(spotLightYopuka.visible){
+        spotLightYopuka.visible = false
+        gsap.killTweensOf(Yopuka.rotation);
+        Yopuka.rotation.set(0, 0, 0);
+        gsap.set("#text-2", {opacity: 0});
+    }
     gsap.to(camera.position, {
         duration: 3,
         x: 0,
@@ -345,13 +370,16 @@ function ReturnToStart(){
         z: 30,
         repeat: 0,
         ease: "power1.in",
+        onStart: function () {
+            gsap.set(".return", {opacity: 0});
+        },
         onUpdate: function() {
-            camera.lookAt( 0, 0, 0 );
+            camera.quaternion.copy(LinkOrientation).slerp(startOrientation, this.progress());
         },
         onComplete: function(){
-            gsap.set(".return", {opacity: 0});
+            gsap.set("#text-2", {opacity: 0});
         }
-})
+    })
 }
 
 //crear una funció per poder importar models
