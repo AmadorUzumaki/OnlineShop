@@ -3,11 +3,16 @@ import * as THREE from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import gsap from 'gsap'
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
+import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
+import CANNON from 'cannon';
 
 //crear escena
 
 const scene = new THREE.Scene()
 
+const world = new CANNON.World()
+
+world.gravity.set(0, - 9.82, 0)
 
 //crear ratio per la càmera
 const fov = 60
@@ -24,12 +29,13 @@ const far = 1000
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 camera.position.set(0, 20, 30);
 camera.lookAt(0, 0, 0);
-
 //crear el renderer
 const renderer = new THREE.WebGLRenderer()
 document.body.appendChild(renderer.domElement)
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+document.body.appendChild( VRButton.createButton( renderer ) );
+renderer.xr.enabled = true;
 
 //crear el cubemap
 
@@ -44,6 +50,27 @@ const environmentMap = cubeTextureLoader.load([
 ])
 
 scene.background = environmentMap;
+
+//coses per físiques
+
+const sphereShape = new CANNON.Sphere(1)
+
+
+const sphereBody = new CANNON.Body({
+    mass: 1,
+    position: new CANNON.Vec3(0, 3, 0),
+    shape: sphereShape
+})
+
+world.addBody(sphereBody)
+
+const sphereGeo = new THREE.SphereGeometry()
+const sphereMaterial = new THREE.MeshStandardMaterial({color: 0x00ff00});
+const sphere = new THREE.Mesh(sphereGeo, sphereMaterial)
+
+scene.add(sphere)
+
+sphere.position.copy(sphereBody.position)
 
 //fer que la pestanya es torni de la mida que és l'explorador actualment
 window.addEventListener('resize', () => {
@@ -266,8 +293,14 @@ function AnimationLoop() {
         const translateY = - screenPosition.y * sizes.height * 0.5
         point.element.style.transform = `translateX(${translateX}px) translateY(${translateY}px)`
     }
+    world.step(1 / 60, deltaTime, 3)
+    console.log(sphereBody.position.y)
+    sphere.position.copy(sphereBody.position)
     renderer.render(scene, camera)
-    requestAnimationFrame(AnimationLoop)
+    renderer.setAnimationLoop( function () {
+        renderer.render( scene, camera );
+    } );
+    
 }
 //funció que s'encarrega de quan fas click
 const startOrientation = camera.quaternion.clone();
